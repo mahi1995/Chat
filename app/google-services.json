@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "910867250962",
+    "firebase_url": "https://chatt-b8045.firebaseio.com",
+    "project_id": "chatt-b8045",
+    "storage_bucket": "chatt-b8045.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910867250962:android:a06e3166e388d0c4",
+        "android_client_info": {
+          "package_name": "com.mahe.chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "910867250962-g1n6l30mncp851pjdbl5agka2eajtftl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mahe.chat",
+            "certificate_hash": "c5bd273726c6ddee037acc71ab68dba05e95a36f"
+          }
+        },
+        {
+          "client_id": "910867250962-teguvas5aialulammo72h9fq2ips7ovk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC56xvf-VtAg_jW5vamjCMI99diN7iqGIY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "910867250962-teguvas5aialulammo72h9fq2ips7ovk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
