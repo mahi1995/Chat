@@ -1,7 +1,13 @@
 package com.mahe.chat;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +25,8 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
 
     private List<String> values;
     Context ctx;
+    private SparseBooleanArray selectedItems=new SparseBooleanArray();
+
 
     public ContactRecyclerAdapter(List<String> myDataset,Context c) {
         values = myDataset;
@@ -57,21 +65,66 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
 
       View v=LayoutInflater.from(ctx).inflate(R.layout.contactresource,parent,false);
         ViewHolder vh = new ViewHolder(v);
-
-
         return vh;
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final String []name = values.get(position).split(",");
+        boolean isGroup=false;
+        holder.rl.setSelected(selectedItems.get(position, false));
 
         holder.ContactName.setText(name[0]);
         holder.ContactNumber.setText(name[1]);
+
+        holder.rl.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (selectedItems.get(position, false)) {
+                    selectedItems.delete(position);
+                    holder.rl.setSelected(false);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        holder.rl.setBackground(ContextCompat.getDrawable(ctx, R.drawable.recyclerback));
+                    } else {
+                        holder.rl.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.recyclerback));
+
+                    }
+                } else {
+                    selectedItems.put(position, true);
+                    holder.rl.setSelected(true);
+                    holder.rl.setBackgroundColor(Color.GRAY);
+
+                }
+                return true;
+            }
+        });
+
         holder.rl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ctx,holder.ContactNumber.getText(),Toast.LENGTH_LONG).show();
+                if (selectedItems.size() <= 0) {
+
+                    Intent i=new Intent(ctx,Messages.class);
+                    i.putExtra("phone",name[1]);
+                    ctx.startActivity(i);
+
+                } else {
+                    if (selectedItems.get(position, false)) {
+                        selectedItems.delete(position);
+                        holder.rl.setSelected(false);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            holder.rl.setBackground(ContextCompat.getDrawable(ctx, R.drawable.recyclerback));
+                        } else {
+                            holder.rl.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.recyclerback));
+
+                        }
+                    } else {
+                        selectedItems.put(position, true);
+                        holder.rl.setSelected(true);
+                        holder.rl.setBackgroundColor(Color.GRAY);
+
+                    }
+                }
             }
         });
 

@@ -1,15 +1,23 @@
 package com.mahe.chat;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
 import android.os.Build;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +37,8 @@ import android.widget.Toast;
 import android.support.design.widget.Snackbar;
 
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
@@ -39,16 +49,17 @@ import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
+
 public class Home extends AppCompatActivity {
 
-
-    //private FirebaseListAdapter<ChatMessage> adapter;
-    PubNub  mPubnub_DataStream;
-
+    PubNubService pubNubService;
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -64,74 +75,86 @@ public class Home extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Intent i=new Intent(this,PubNubService.class);
+        bindService(i, serviceConnection, BIND_AUTO_CREATE);
 
 
         setUpFragments();
 
+    }
 
 
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            pubNubService=((PubNubService.LocalBinder) service).getBinder();
+            pubNubService.subscribeForChannels(new Messages.MessageReceived() {
+                @Override
+                public void onReceive(final String s) {
 
-        //btnSend = (Button) findViewById(R.id.btnsend);
-
-
-
-
-
-
-        PNConfiguration config = new PNConfiguration();
-        config.setPublishKey(ConstantsCollection.PUBLISH_KEY);
-        config.setSubscribeKey(ConstantsCollection.SUBSCRIBE_KEY);
-        config.setUuid(ConstantsCollection.UUID);
-        config.setSecure(true);
-        this.mPubnub_DataStream = new PubNub(config);
-
-        mPubnub_DataStream.addListener(new SubscribeCallback() {
-            @Override
-            public void status(PubNub pubnub, PNStatus status) {
-                Toast.makeText(getApplicationContext(),""+status.getCategory(),Toast.LENGTH_LONG).show();
-                if(status.getCategory()== PNStatusCategory.PNConnectedCategory){
-                    mPubnub_DataStream.publish().channel(ConstantsCollection.CHANNEL).message("{msg:hello}").async(new PNCallback<PNPublishResult>() {
+                    runOnUiThread(new Runnable() {
                         @Override
-                        public void onResponse(PNPublishResult result, PNStatus status) {
-                            // Toast.makeText(getApplicationContext(), status.getCategory()+"",Toast.LENGTH_LONG).show();
+                        public void run() {
+                            try {
+
+                                JSONObject jsonObject=new JSONObject();
+                                for (String temp:s.split(",")) {
+                                    temp=temp.replace("\"","");
+
+                                    temp=temp.replace("\\","");
+                                    String t[]=temp.split(":");
+                                    jsonObject.put(t[0],t[1]);
+
+                                }
+
+                                Gson gson=new Gson();
+                                Message m= gson.fromJson(new JsonParser().parse(jsonObject.toString()),Message.class);
+                                m.setIsMe(0);
+                                Toast.makeText(getApplicationContext(),m.getMessage(),Toast.LENGTH_LONG).show();
+
+
+
+                                NotificationManager notificationManager = (NotificationManager)
+                                        getSystemService(NOTIFICATION_SERVICE);
+                                Intent intent = new Intent(getApplicationContext(), Messages.class);
+                                PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), (int) System.currentTimeMillis(), intent, 0);
+
+                                NotificationCompat.Builder mBuilder =
+                                        new NotificationCompat.Builder(getApplicationContext())
+                                                .setSmallIcon(R.drawable.in_message)
+                                                .setContentTitle("My notification")
+                                                .setContentText("Hello World!")
+                                                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+
+                                        .setContentIntent(pIntent);
+                                notificationManager.notify(1,mBuilder.build());
+
+
+
+
+
+
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
                 }
-            }
+            });
 
-            @Override
-            public void message(PubNub pubnub, final PNMessageResult message) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),"rcvd ="+message.getMessage(),Toast.LENGTH_LONG).show();
+        }
 
-                    }
-                });
-            }
-
-            @Override
-            public void presence(PubNub pubnub, PNPresenceEventResult presence) {
-
-            }
-        });
-
-
-
-/*
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPubnub_DataStream.subscribe().channels(Arrays.asList(ConstantsCollection.CHANNEL)).execute();
-            }
-        });*/
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+    };
 
 
 
 
-    }
 
-void setUpFragments(){
+    void setUpFragments(){
     viewPager = (ViewPager) findViewById(R.id.viewpager);
 
     ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -139,7 +162,6 @@ void setUpFragments(){
     adapter.addFragment(new ChatFragment(), "Chats");
     adapter.addFragment(new ContactFragment(), "Contacts");
     viewPager.setAdapter(adapter);
-
 
     tabLayout = (TabLayout) findViewById(R.id.tabs);
     tabLayout.setupWithViewPager(viewPager);

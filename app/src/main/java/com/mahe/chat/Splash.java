@@ -89,12 +89,14 @@ public class Splash extends AppCompatActivity {
         alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
+                dialogInterface.dismiss();
                 Splash.this.finish();
             }
         });
         alert.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialogInterface) {
+                dialogInterface.dismiss();
                 Splash.this.finish();
 
             }
@@ -105,14 +107,14 @@ public class Splash extends AppCompatActivity {
 
     @NonNull
     private AlertDialog.Builder getBuilder() {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        final AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
         inflater = Splash.this.getLayoutInflater();
         if (v == null) {
             v = inflater.inflate(R.layout.login, null, false);
         } else {
             ((ViewGroup) v.getParent()).removeView(v);
         }
-        alert.setView(v);
+        alert1.setView(v);
 
         txtPhone = (EditText) v.findViewById(R.id.txtphone);
         btnLogin = (Button) v.findViewById(R.id.btn_login);
@@ -122,9 +124,12 @@ public class Splash extends AppCompatActivity {
             public void onClick(View view) {
                 if(!txtPhone.getText().toString().isEmpty()&&txtPhone.getText().length()==10){
 
+                    alert.dismiss();
                     ConstantsCollection.CHANNEL=txtPhone.getText().toString();
                     ConstantsCollection.UUID=txtPhone.getText().toString();
                     startActivity(new Intent(getApplicationContext(),Home.class));
+                   // startActivity(new Intent(getApplicationContext(),Messages.class));
+                    finish();
 
                 }else {
                     Snackbar snack = Snackbar.make(v, "Please Enter Your Phone Number", Snackbar.LENGTH_LONG);
@@ -132,7 +137,7 @@ public class Splash extends AppCompatActivity {
                 }
             }
         });
-        return alert;
+        return alert1;
     }
 
 

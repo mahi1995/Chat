@@ -25,6 +25,7 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by hp on 23-11-2017.
@@ -34,8 +35,6 @@ public class ContactFragment extends Fragment {
 
     ContentProviderClient mCProviderClient;
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
 
 
     public ContactFragment() {
@@ -54,17 +53,21 @@ public class ContactFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+
+
+
+
+
         View rootView = inflater.inflate(R.layout.contactfragment, container, false);
 
         final ArrayList<String> l=fetchContactsCProviderClient();
 //        Toast.makeText(getContext(),l.get(0)+"",Toast.LENGTH_LONG).show();
         recyclerView = (RecyclerView)rootView.findViewById(R.id.recyclercintacts);
-
-        mAdapter = new ContactRecyclerAdapter(l,getContext());
         final ContactRecyclerAdapter adp=new ContactRecyclerAdapter(l,getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adp);
 
+/*
         recyclerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,7 +75,7 @@ public class ContactFragment extends Fragment {
                 String item = l.get(itemPosition);
                 Toast.makeText(getContext(), item, Toast.LENGTH_LONG).show();
             }
-        });
+        });*/
 
 
 
@@ -115,8 +118,9 @@ public class ContactFragment extends Fragment {
             Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
             mContactList = null;
         }
-
+        java.util.Collections.sort(mContactList);
         return mContactList;
 
     }
+
 }
