@@ -4,6 +4,7 @@
 -App allows users to create groups and communicate over the network.
 
 Assumption
+No autentication mechanism is implemented.
 Since no cloud storage or push notification functionality is currently implemented users have to be online to send and receive messages.
 
 Working on...
