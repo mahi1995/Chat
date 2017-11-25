@@ -31,13 +31,12 @@
 
         <Button
             android:id="@+id/btnmessagesSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:background="@color/background_floating_material_dark"
-            android:text="Send MSG"
-            android:textColor="@color/background_material_light"/>
+            android:background="@drawable/send"
+            android:textColor="@color/background_material_light" />
 
        <android.support.v7.widget.RecyclerView
            android:id="@+id/recyclerMessages"

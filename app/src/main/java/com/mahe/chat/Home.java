@@ -67,6 +67,7 @@ public class Home extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     MyDB db;
+    boolean isMymsg=false;
      ChatFragment ch1;
 
 
@@ -132,8 +133,21 @@ public class Home extends AppCompatActivity {
                                     pubNubService.getPubNub().subscribe().channels(db.getAllChannels()).execute();
 
                                 }else {
-                                    if(!db.getAllChannels().get(0).contains(m.getFrom()))
+                                    if(m.getFrom().length()>15){
+
+                                        String t=m.getFrom().substring(0,m.getFrom().indexOf("@@@"));
+                                        m.setFrom(m.getFrom().substring(m.getFrom().indexOf("@@@")+3));
+                                        m.setMessage("from : "+t+"\n\n"+m.getMessage());
+                                        if(t.equals(db.getAllChannels().get(0)))
+                                        {
+                                            isMymsg=true;
+                                        }else {
                                             db.insertChat(m);
+                                            isMymsg=false;
+                                        }
+
+                                    }else
+                                        db.insertChat(m);
                                 }
 
                                // Toast.makeText(getApplicationContext(),"From="+m.getFrom(),Toast.LENGTH_LONG).show();
@@ -162,7 +176,8 @@ public class Home extends AppCompatActivity {
                                                 .setAutoCancel(true)
                                                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                                         .setContentIntent(pIntent);
-                                notificationManager.notify(1,mBuilder.build());
+                                if(!isMymsg)
+                                    notificationManager.notify(1,mBuilder.build());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
