@@ -77,13 +77,13 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessagesRecycl
 
     private void setAlignment(ViewHolder holder, int isMe) {
         if (isMe==1) {
-            holder.linearLayout.setBackgroundResource(R.drawable.in_message);
+            holder.linearLayout.setBackgroundResource(R.drawable.inmsg);
 
             LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder.linearLayout.getLayoutParams();
             layoutParams.gravity = Gravity.RIGHT;
 
             holder.linearLayout.setLayoutParams(layoutParams);
-            holder.linearLayout.setPadding(120,0,80,0);
+            holder.linearLayout.setPadding(50,20,50,20);
 
             RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.content.getLayoutParams();
             lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT,0);
@@ -97,12 +97,12 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessagesRecycl
             layoutParams.gravity = Gravity.RIGHT;
             holder.txtInfo.setLayoutParams(layoutParams);
         } else {
-            holder.linearLayout.setBackgroundResource(R.drawable.out_message);
+            holder.linearLayout.setBackgroundResource(R.drawable.outmsg);
 
             LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder.linearLayout.getLayoutParams();
             layoutParams.gravity = Gravity.LEFT;
             holder.linearLayout.setLayoutParams(layoutParams);
-            holder.linearLayout.setPadding(100,0,50,0);
+            holder.linearLayout.setPadding(50,20,50,20);
 
 
             RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.content.getLayoutParams();

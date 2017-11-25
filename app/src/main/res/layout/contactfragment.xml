@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Home">
 
 <android.support.v7.widget.RecyclerView
@@ -13,6 +14,20 @@
 
 
 </android.support.v7.widget.RecyclerView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabCreategroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:scaleType="center"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/group"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="40dp"
+
+
+    />
 
 
 </RelativeLayout>

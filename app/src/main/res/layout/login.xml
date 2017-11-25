@@ -3,11 +3,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:fitsSystemWindows="true"
+    android:background="#dee2d0"
     android:id="@+id/scroll_login">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
+        android:background="@drawable/loginback"
         android:layout_height="wrap_content"
         android:paddingTop="56dp"
         android:paddingLeft="24dp"

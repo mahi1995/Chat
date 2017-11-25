@@ -12,6 +12,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -26,6 +27,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +66,9 @@ public class Home extends AppCompatActivity {
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    MyDB db;
+     ChatFragment ch1;
+
 
 
     @Override
@@ -77,8 +82,7 @@ public class Home extends AppCompatActivity {
 
         Intent i=new Intent(this,PubNubService.class);
         bindService(i, serviceConnection, BIND_AUTO_CREATE);
-
-
+        db=new MyDB(this);
         setUpFragments();
 
     }
@@ -88,6 +92,8 @@ public class Home extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             pubNubService=((PubNubService.LocalBinder) service).getBinder();
+            pubNubService.sendPush();
+
             pubNubService.subscribeForChannels(new Messages.MessageReceived() {
                 @Override
                 public void onReceive(final String s) {
@@ -98,43 +104,65 @@ public class Home extends AppCompatActivity {
                             try {
 
                                 JSONObject jsonObject=new JSONObject();
+
                                 for (String temp:s.split(",")) {
-                                    temp=temp.replace("\"","");
+                                    temp=temp.replace("\"","").replace("{","").replace("}","");
 
                                     temp=temp.replace("\\","");
                                     String t[]=temp.split(":");
-                                    jsonObject.put(t[0],t[1]);
+                                    if(t[0].contains("from")){
+                                        jsonObject.put("from",t[1]);
+                                    }else if(t[0].contains("time")){
+                                        jsonObject.put("time",temp.replace("time:","").replace("}",""));
+                                    }else
+                                        jsonObject.put(t[0],t[1]);
 
                                 }
+                                Message m= new Message(
+                                        jsonObject.getString("from"),
+                                        jsonObject.getString("message"),
+                                        jsonObject.getString("time"),
+                                        0,
+                                        Boolean.parseBoolean(jsonObject.getString("isControlMessage"))
+                                );
+                                if(m.isControlMessage()){
+                                   long i= db.addChannel(m.getFrom());
+                                    Toast.makeText(getApplicationContext(),i+"",Toast.LENGTH_LONG).show();
+                                    db.insertChat(m);
+                                    pubNubService.getPubNub().subscribe().channels(db.getAllChannels()).execute();
 
-                                Gson gson=new Gson();
-                                Message m= gson.fromJson(new JsonParser().parse(jsonObject.toString()),Message.class);
-                                m.setIsMe(0);
-                                Toast.makeText(getApplicationContext(),m.getMessage(),Toast.LENGTH_LONG).show();
+                                }else {
+                                    if(!db.getAllChannels().get(0).contains(m.getFrom()))
+                                            db.insertChat(m);
+                                }
+
+                               // Toast.makeText(getApplicationContext(),"From="+m.getFrom(),Toast.LENGTH_LONG).show();
+
+                               // Toast.makeText(getApplicationContext(),m.getMessage(),Toast.LENGTH_LONG).show();
+
+
+                                try {
+                                    ChatFragmentRecyclerAdapter adp=new ChatFragmentRecyclerAdapter(db.getDistinctChats(),getApplicationContext());
+                                    ch1.recyclerView.setAdapter(adp);
+                                }catch (Exception e){}
 
 
 
                                 NotificationManager notificationManager = (NotificationManager)
                                         getSystemService(NOTIFICATION_SERVICE);
                                 Intent intent = new Intent(getApplicationContext(), Messages.class);
+                                intent.putExtra("phone",m.getFrom());
                                 PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), (int) System.currentTimeMillis(), intent, 0);
 
                                 NotificationCompat.Builder mBuilder =
                                         new NotificationCompat.Builder(getApplicationContext())
-                                                .setSmallIcon(R.drawable.in_message)
-                                                .setContentTitle("My notification")
-                                                .setContentText("Hello World!")
+                                                .setSmallIcon(R.drawable.chat)
+                                                .setContentTitle("New Message")
+                                                .setContentText("From : "+m.getFrom())
+                                                .setAutoCancel(true)
                                                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-
                                         .setContentIntent(pIntent);
                                 notificationManager.notify(1,mBuilder.build());
-
-
-
-
-
-
-
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -150,30 +178,73 @@ public class Home extends AppCompatActivity {
         }
     };
 
-
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
+    }
 
     void setUpFragments(){
     viewPager = (ViewPager) findViewById(R.id.viewpager);
 
-    ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-
-    adapter.addFragment(new ChatFragment(), "Chats");
+    final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+       ch1=new ChatFragment();
+    adapter.addFragment(ch1, "Chats");
     adapter.addFragment(new ContactFragment(), "Contacts");
     viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position==0){
+
+                    try {
+                        ChatFragmentRecyclerAdapter adp=new ChatFragmentRecyclerAdapter(db.getDistinctChats(),getApplicationContext());
+                        ch1.recyclerView.setAdapter(adp);
+                    }catch (Exception e){}
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
     tabLayout = (TabLayout) findViewById(R.id.tabs);
     tabLayout.setupWithViewPager(viewPager);
 }
+    boolean doubleBackToExitPressedOnce = false;
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
 
 
+            super.onBackPressed();
+            finish();
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return;
+        }
 
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
 
+        new Handler().postDelayed(new Runnable() {
 
-
-
-
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
 
 
 }

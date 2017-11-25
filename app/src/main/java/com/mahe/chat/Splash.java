@@ -28,12 +28,14 @@ public class Splash extends AppCompatActivity {
     View v;
     EditText txtPhone;
     String mPhoneNumber;
+    MyDB db;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        db=new MyDB(this);
         askPermission();
 
     }
@@ -54,7 +56,10 @@ public class Splash extends AppCompatActivity {
             }catch (Exception ex){
                 // Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
             }
-            login();
+            if(db.getAllChannels().size()<=0) {
+                login();
+            }else
+                startActivity(new Intent(getApplicationContext(),Home.class));
         }
     }
 
@@ -63,15 +68,16 @@ public class Splash extends AppCompatActivity {
                                            int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if(ConstantsCollection.CHANNEL.isEmpty()){
                     try {
                         TelephonyManager tMgr = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                         mPhoneNumber = tMgr.getLine1Number();
                     }catch (Exception ex){
                         // Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
                     }
-                    login();
-                }
+                    if(db.getAllChannels().size()<=0) {
+                        login();
+                    }else
+                        startActivity(new Intent(getApplicationContext(),Home.class));
 
             } else {
                 Toast.makeText(this, "Until you grant the permission, we canot display the names", Toast.LENGTH_SHORT).show();
@@ -125,11 +131,17 @@ public class Splash extends AppCompatActivity {
                 if(!txtPhone.getText().toString().isEmpty()&&txtPhone.getText().length()==10){
 
                     alert.dismiss();
-                    ConstantsCollection.CHANNEL=txtPhone.getText().toString();
+                   // ConstantsCollection.CHANNEL=txtPhone.getText().toString();
                     ConstantsCollection.UUID=txtPhone.getText().toString();
-                    startActivity(new Intent(getApplicationContext(),Home.class));
+                    if(db.addChannel(txtPhone.getText().toString())>0) {
+                        finish();
+                        startActivity(new Intent(getApplicationContext(), Home.class));
+                    }else
+                    {
+                        Toast.makeText(getApplicationContext(),"OOppps!!",Toast.LENGTH_LONG).show();
+                    }
                    // startActivity(new Intent(getApplicationContext(),Messages.class));
-                    finish();
+
 
                 }else {
                     Snackbar snack = Snackbar.make(v, "Please Enter Your Phone Number", Snackbar.LENGTH_LONG);

@@ -14,16 +14,21 @@ import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNPushType;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.push.PNPushAddChannelResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Handler;
 
 /**
  * Created by hp on 24-11-2017.
@@ -32,9 +37,11 @@ import java.util.Arrays;
 public class PubNubService extends Service {
     PubNub  mPubnub_DataStream;
     String m;
+    MyDB db;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+
 
         return iBinder;
     }
@@ -58,6 +65,7 @@ public class PubNubService extends Service {
 
             this.mPubnub_DataStream = new PubNub(config);
         }
+        db=new MyDB(getApplicationContext());
         return  mPubnub_DataStream;
     }
 
@@ -67,8 +75,8 @@ public class PubNubService extends Service {
         getPubNub().addListener(new SubscribeCallback() {
             @Override
             public void status(PubNub pubnub, PNStatus status) {
+               // Toast.makeText(getApplicationContext(),"status="+status.getCategory().toString(),Toast.LENGTH_LONG).show();
                 if(status.getCategory()== PNStatusCategory.PNConnectedCategory){
-                    //Toast.makeText(getApplicationContext(),"status="+status.getCategory().toString(),Toast.LENGTH_LONG).show();
 
                 }
             }
@@ -84,23 +92,63 @@ public class PubNubService extends Service {
             }
         });
 
-        getPubNub().subscribe().channels(Arrays.asList(ConstantsCollection.CHANNEL)).execute();
+
+        getPubNub().subscribe().channels(db.getAllChannels()).execute();
     }
 
     void publishMessage(String channel,Message message){
         try {
             Gson gson=new Gson();
-            JSONObject jsonObject=new JSONObject(gson.toJson(message));
+            final JSONObject jsonObject=new JSONObject(gson.toJson(message));
+
             getPubNub().publish().channel(channel).message(jsonObject.toString()).async(new PNCallback<PNPublishResult>() {
                         @Override
                         public void onResponse(PNPublishResult result, PNStatus status) {
-                           // Toast.makeText(getApplicationContext(),status.getCategory()+"",Toast.LENGTH_LONG).show();
+                           //Toast.makeText(getApplicationContext(),status.getCategory()+"",Toast.LENGTH_LONG).show();
                         }
                     });
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    void publishMessageAll(List<String> channels, Message message){
+        try {
+            Gson gson=new Gson();
+            final JSONObject jsonObject=new JSONObject(gson.toJson(message));
+            for (String channel:channels) {
+                try {
+                    getPubNub().publish().channel(channel).message(jsonObject.toString()).async(new PNCallback<PNPublishResult>() {
+                        @Override
+                        public void onResponse(PNPublishResult result, PNStatus status) {
+                            //Log.i("json==", jsonObject.toString());
+                            //Toast.makeText(getApplicationContext(),status.getCategory()+"",Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }catch (Exception ex){}
+            }
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void sendPush(){
+        getPubNub().addPushNotificationsOnChannels()
+                .deviceId("com.mahe.chat")
+                .channels(db.getAllChannels())
+                .pushType(PNPushType.GCM)
+                .async(new PNCallback<PNPushAddChannelResult>() {
+                    @Override
+                    public void onResponse(PNPushAddChannelResult result, PNStatus status) {
+                       // Toast.makeText(getApplicationContext(),status.getCategory()+"",Toast.LENGTH_LONG).show();
+                    }
+                });
+
     }
 
 }

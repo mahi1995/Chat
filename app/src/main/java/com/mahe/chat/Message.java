@@ -1,5 +1,7 @@
 package com.mahe.chat;
 
+import java.util.Enumeration;
+
 /**
  * Created by hp on 24-11-2017.
  */
@@ -7,11 +9,21 @@ package com.mahe.chat;
 public class Message {
    private String from,message,time;
     int isMe;
-    Message(String f,String m,String t,int i){
+    boolean isControlMessage;
+    Message(String f,String m,String t,int i,boolean type){
         time=t;
         from=f;
         message=m;
         isMe=i;
+        isControlMessage=type;
+    }
+
+    public boolean isControlMessage() {
+        return isControlMessage;
+    }
+
+    public void setControlMessage(boolean controlMessage) {
+        isControlMessage = controlMessage;
     }
 
     public int getIsMe() {

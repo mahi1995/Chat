@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class MyDB extends SQLiteOpenHelper {
 
     public  static final  String CREATE_GROUP="CREATE TABLE "+ MyDBContract.TBL_GROUP.TBL_GROUP+" ("+
             MyDBContract.TBL_GROUP._ID+" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"+
-            MyDBContract.TBL_GROUP.CLM_CHANNEL+"  TEXT )";
+            MyDBContract.TBL_GROUP.CLM_CHANNEL+"  TEXT  NOT NULL UNIQUE)";
 
     public  static final  String DROP_GROUP="DROP TABLE IF EXISTS "+ MyDBContract.TBL_GROUP.TBL_GROUP;
 
@@ -45,8 +46,8 @@ public class MyDB extends SQLiteOpenHelper {
             db.execSQL(CREATE_GROUP);
         }catch (Exception e){
             Toast.makeText(ctx,e.toString(),Toast.LENGTH_LONG).show();
+            Log.i("ex:=",e.getMessage());
         }
-        Toast.makeText(ctx,"TABLEs created",Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -56,16 +57,141 @@ public class MyDB extends SQLiteOpenHelper {
 
         onCreate(db);
     }
-    public long insertChat(String from,String message,String time, String isME){
-        SQLiteDatabase db=this.getWritableDatabase();
-        ContentValues values=new ContentValues();
-        values.put(MyDBContract.TBL_CHAT.CLM_FROM,from);
-        values.put(MyDBContract.TBL_CHAT.CLM_MESSAGE,message);
-        values.put(MyDBContract.TBL_CHAT.CLM_ISMe,isME);
-        values.put(MyDBContract.TBL_CHAT.CLM_TIME,time);
-      long result= db.insert(MyDBContract.TBL_CHAT.TBL_CHAT,null,values);
-        db.close();
-        return result;
+    public long insertChat(Message m){
+        SQLiteDatabase db=null;
+        try {
+            db= this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(MyDBContract.TBL_CHAT.CLM_FROM, m.getFrom());
+            values.put(MyDBContract.TBL_CHAT.CLM_MESSAGE, m.getMessage());
+            values.put(MyDBContract.TBL_CHAT.CLM_ISMe, m.getIsMe());
+            values.put(MyDBContract.TBL_CHAT.CLM_TIME, m.getTime());
+            long result = db.insertOrThrow(MyDBContract.TBL_CHAT.TBL_CHAT, null, values);
+            return result;
+        }catch (Exception ex){
+
+            Toast.makeText(ctx,ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+        finally {
+            if(db!=null)
+                db.close();
+        }
+        return 0;
+    }
+
+    public long addChannel(String channel){
+        SQLiteDatabase db=null;
+        try {
+            db =this.getWritableDatabase();
+            ContentValues values=new ContentValues();
+            values.put(MyDBContract.TBL_GROUP.CLM_CHANNEL,channel);
+            long result= db.insertOrThrow(MyDBContract.TBL_GROUP.TBL_GROUP,null,values);
+            return result;
+        }catch (Exception ex){
+            Toast.makeText(ctx,ex.getMessage(),Toast.LENGTH_LONG).show();
+            Log.i("ex:=",ex.getMessage());
+        }
+        finally {
+            if(db!=null)
+                db.close();
+        }
+        return 0;
+    }
+
+    public void deleteChannelRecords(){
+        SQLiteDatabase db=null;
+        try {
+            db =this.getWritableDatabase();
+            db.execSQL("delete from "+ MyDBContract.TBL_GROUP.TBL_GROUP);
+        }catch (Exception ex){
+            Toast.makeText(ctx,ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+        finally {
+            if(db!=null)
+                db.close();
+        }
+    }
+
+
+    public void deleteChatRecords(){
+        SQLiteDatabase db=null;
+        try {
+            db =this.getWritableDatabase();
+            db.execSQL("delete from "+ MyDBContract.TBL_CHAT.TBL_CHAT);
+        }catch (Exception ex){
+            Toast.makeText(ctx,ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+        finally {
+            if(db!=null)
+                db.close();
+        }
+    }
+
+    public ArrayList<String> getAllChannels(){
+        SQLiteDatabase db=null;
+        ArrayList<String> l=new ArrayList<>();
+        try {
+            db =this.getWritableDatabase();
+            Cursor c=db.query(MyDBContract.TBL_GROUP.TBL_GROUP,new String[]{MyDBContract.TBL_GROUP.CLM_CHANNEL},null,null,null,null, MyDBContract.TBL_GROUP._ID);
+            if(c.moveToFirst()){
+             do {
+                 l.add(c.getString(0));
+             }while (c.moveToNext());
+            }
+        }catch (Exception ex){
+            Toast.makeText(ctx,ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+        finally {
+            if(db!=null)
+                db.close();
+        }
+        return l;
+    }
+
+
+    public ArrayList<String> getDistinctChats(){
+        SQLiteDatabase db=null;
+
+        ArrayList<String> l=new ArrayList<>();
+        try {
+            db =this.getWritableDatabase();
+            Cursor c=db.query(true,MyDBContract.TBL_CHAT.TBL_CHAT,new String[]{MyDBContract.TBL_CHAT.CLM_FROM},null,null,null,null, MyDBContract.TBL_CHAT.CLM_TIME+" DESC",null);
+            if(c.moveToFirst()){
+                do {
+                    l.add(c.getString(0));
+                }while (c.moveToNext());
+            }
+        }catch (Exception ex){
+            Toast.makeText(ctx,ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+        finally {
+            if(db!=null)
+                db.close();
+        }
+        return l;
+    }
+
+    public ArrayList<Message> getMessage(String fromWho){
+        SQLiteDatabase db=null;
+
+        ArrayList<Message> l=new ArrayList<>();
+        try {
+            db =this.getWritableDatabase();
+            Cursor c=db.query(MyDBContract.TBL_CHAT.TBL_CHAT,new String[]{MyDBContract.TBL_CHAT.CLM_MESSAGE, MyDBContract.TBL_CHAT.CLM_ISMe, MyDBContract.TBL_CHAT.CLM_TIME}, MyDBContract.TBL_CHAT.CLM_FROM+"=?",new String[]{fromWho},null,null, MyDBContract.TBL_CHAT.CLM_TIME);
+            if(c.moveToFirst()){
+                do {
+                    Message m=new Message(fromWho,c.getString(0),c.getString(2),Integer.parseInt(c.getString(1)),false);
+                    l.add(m);
+                }while (c.moveToNext());
+            }
+        }catch (Exception ex){
+            Toast.makeText(ctx,ex.getMessage(),Toast.LENGTH_LONG).show();
+        }
+        finally {
+            if(db!=null)
+                db.close();
+        }
+        return l;
     }
 
 }

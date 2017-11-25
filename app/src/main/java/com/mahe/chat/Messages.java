@@ -41,6 +41,7 @@ public class Messages extends AppCompatActivity {
     boolean isBoubd=false;
     String phone;
      MessagesRecyclerAdapter adp;
+    MyDB db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,11 +51,12 @@ public class Messages extends AppCompatActivity {
         txtMessage=(EditText)findViewById(R.id.txtMessagesEdit);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        db=new MyDB(this);
 
 
 
         phone=getIntent().getStringExtra("phone");
-        if(phone.isEmpty()) {
+        if(phone==null||phone.isEmpty()) {
             finish();
             startActivity(new Intent(this,Home.class));
         }
@@ -63,23 +65,33 @@ public class Messages extends AppCompatActivity {
 
         pubNubService=new PubNubService();
         Intent i=new Intent(this,PubNubService.class);
+
             bindService(i, serviceConnection, BIND_AUTO_CREATE);
 
          l=new ArrayList<>();
-
-         adp=new MessagesRecyclerAdapter(l,this);
+        l=db.getMessage(phone);
+        adp=new MessagesRecyclerAdapter(l,this);
         rc.setLayoutManager(new LinearLayoutManager(this));
         rc.setAdapter(adp);
-
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!txtMessage.getText().toString().isEmpty()&&isBoubd){
-                    Message m=new Message(ConstantsCollection.CHANNEL,txtMessage.getText().toString(), DateFormat.getDateTimeInstance().format(new Date()).toString(),1);
-                    pubNubService.publishMessage(phone,m);
-                    adp.add(adp.getItemCount(),m);
-                    txtMessage.setText("");
+                    Message m;
+                    if(phone.length()<15) {
+                        m= new Message(db.getAllChannels().get(0), txtMessage.getText().toString(), DateFormat.getDateTimeInstance().format(new Date().getTime()).toString(), 1, false);
+                        pubNubService.publishMessage(phone, m);
+                        m.setFrom(phone);
+                    }else
+                    {
+                        m= new Message(phone, txtMessage.getText().toString(), DateFormat.getDateTimeInstance().format(new Date().getTime()).toString(), 1, false);
+                        pubNubService.publishMessage(phone, m);
+                    }
+                    if(db.insertChat(m)>0) {
+                        adp.add(adp.getItemCount(), m);
+                        txtMessage.setText("");
+                    }
 
                 }
             }
@@ -106,8 +118,24 @@ public class Messages extends AppCompatActivity {
 
     interface MessageReceived {
         void onReceive(String s);
-
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //unbindService(serviceConnection);
+        finish();
+
+    }
 }
