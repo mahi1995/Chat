@@ -27,9 +27,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+
             android:layout_marginBottom="8dp">
             <EditText android:id="@+id/txtphone"
                 android:layout_width="match_parent"
+                android:textColor="#000"
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:maxLength="10"
@@ -46,7 +48,7 @@
             android:padding="12dp"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:background="@color/colorAccent"
+            android:background="#049938"
             android:textColor="#fff"
             android:text="Login"/>
     </LinearLayout>

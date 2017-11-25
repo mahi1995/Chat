@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Handler;
 
+
 /**
  * Created by hp on 24-11-2017.
  */
@@ -41,8 +42,7 @@ public class PubNubService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-
-
+        new Handler().
         return iBinder;
     }
 
