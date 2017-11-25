@@ -137,7 +137,7 @@ public class Home extends AppCompatActivity {
 
                                         String t=m.getFrom().substring(0,m.getFrom().indexOf("@@@"));
                                         m.setFrom(m.getFrom().substring(m.getFrom().indexOf("@@@")+3));
-                                        m.setMessage("from : "+t+"\n\n"+m.getMessage());
+                                        m.setTime(m.getTime()+"\n"+t);
                                         if(t.equals(db.getAllChannels().get(0)))
                                         {
                                             isMymsg=true;
