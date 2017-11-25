@@ -177,7 +177,7 @@ public class MyDB extends SQLiteOpenHelper {
         ArrayList<Message> l=new ArrayList<>();
         try {
             db =this.getWritableDatabase();
-            Cursor c=db.query(MyDBContract.TBL_CHAT.TBL_CHAT,new String[]{MyDBContract.TBL_CHAT.CLM_MESSAGE, MyDBContract.TBL_CHAT.CLM_ISMe, MyDBContract.TBL_CHAT.CLM_TIME}, MyDBContract.TBL_CHAT.CLM_FROM+"=?",new String[]{fromWho},null,null, MyDBContract.TBL_CHAT.CLM_TIME);
+            Cursor c=db.query(MyDBContract.TBL_CHAT.TBL_CHAT,new String[]{MyDBContract.TBL_CHAT.CLM_MESSAGE, MyDBContract.TBL_CHAT.CLM_ISMe, MyDBContract.TBL_CHAT.CLM_TIME}, MyDBContract.TBL_CHAT.CLM_FROM+"=?",new String[]{fromWho},null,null, MyDBContract.TBL_CHAT._ID);
             if(c.moveToFirst()){
                 do {
                     Message m=new Message(fromWho,c.getString(0),c.getString(2),Integer.parseInt(c.getString(1)),false);

@@ -88,6 +88,7 @@ public class Messages extends AppCompatActivity {
                         m= new Message(db.getAllChannels().get(0)+"@@@"+phone, txtMessage.getText().toString(), DateFormat.getDateTimeInstance().format(new Date().getTime()).toString(), 1, false);
                         pubNubService.publishMessage(phone, m);
                         m.setFrom(m.getFrom().substring(m.getFrom().indexOf("@@@")+3));
+                        Log.i("time=",m.getTime());
                     }
                     if(db.insertChat(m)>0) {
                         adp.add(adp.getItemCount(), m);
