@@ -1,35 +1,27 @@
 {
   "project_info": {
-    "project_number": "910867250962",
-    "firebase_url": "https://chatt-b8045.firebaseio.com",
-    "project_id": "chatt-b8045",
-    "storage_bucket": "chatt-b8045.appspot.com"
+    "project_number": "151210889202",
+    "firebase_url": "https://chatforniki.firebaseio.com",
+    "project_id": "chatforniki",
+    "storage_bucket": "chatforniki.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:910867250962:android:a06e3166e388d0c4",
+        "mobilesdk_app_id": "1:151210889202:android:a06e3166e388d0c4",
         "android_client_info": {
           "package_name": "com.mahe.chat"
         }
       },
       "oauth_client": [
         {
-          "client_id": "910867250962-g1n6l30mncp851pjdbl5agka2eajtftl.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.mahe.chat",
-            "certificate_hash": "c5bd273726c6ddee037acc71ab68dba05e95a36f"
-          }
-        },
-        {
-          "client_id": "910867250962-teguvas5aialulammo72h9fq2ips7ovk.apps.googleusercontent.com",
+          "client_id": "151210889202-s3b9bnrbfg016fi0h11asr79au6v8bng.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC56xvf-VtAg_jW5vamjCMI99diN7iqGIY"
+          "current_key": "AIzaSyBIfGXmEWqNpCGC3-MDpFgurG2AwMTMTss"
         }
       ],
       "services": {
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "910867250962-teguvas5aialulammo72h9fq2ips7ovk.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

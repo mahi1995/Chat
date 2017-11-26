@@ -1,12 +1,16 @@
 package com.mahe.chat;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.IBinder;
 import android.provider.SyncStateContract;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,7 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-public class Messages extends AppCompatActivity {
+public class Messages extends AppCompatActivity  {
 
     RecyclerView rc;
     EditText txtMessage;
@@ -41,6 +45,7 @@ public class Messages extends AppCompatActivity {
     boolean isBoubd=false;
     String phone;
      MessagesRecyclerAdapter adp;
+    public  final static String FILTER_STRING="MESSAGE_RECEIVED";
     MyDB db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,6 @@ public class Messages extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         db=new MyDB(this);
-
 
 
         phone=getIntent().getStringExtra("phone");
@@ -73,6 +77,7 @@ public class Messages extends AppCompatActivity {
         adp=new MessagesRecyclerAdapter(l,this);
         rc.setLayoutManager(new LinearLayoutManager(this));
         rc.setAdapter(adp);
+
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,9 +105,13 @@ public class Messages extends AppCompatActivity {
         });
 
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceived, new IntentFilter(FILTER_STRING));
+
+
 
 
     }
+
 
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -118,9 +127,8 @@ public class Messages extends AppCompatActivity {
     };
 
 
-    interface MessageReceived {
-        void onReceive(String s);
-    }
+
+
 
     @Override
     protected void onDestroy() {
@@ -131,6 +139,7 @@ public class Messages extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceived);
     }
 
     @Override
@@ -140,4 +149,17 @@ public class Messages extends AppCompatActivity {
         finish();
 
     }
+
+    BroadcastReceiver mMessageReceived=new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            l=new ArrayList<>();
+            l=db.getMessage(phone);
+            adp=new MessagesRecyclerAdapter(l,getApplicationContext());
+            rc.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+            rc.setAdapter(adp);
+        }
+    };
+
+
 }

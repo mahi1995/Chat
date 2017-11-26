@@ -1,62 +1,24 @@
 package com.mahe.chat;
 
-import android.Manifest;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.support.design.widget.Snackbar;
 
-
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
-import com.pubnub.api.PNConfiguration;
-import com.pubnub.api.PubNub;
-import com.pubnub.api.callbacks.PNCallback;
-import com.pubnub.api.callbacks.SubscribeCallback;
-import com.pubnub.api.enums.PNStatusCategory;
-import com.pubnub.api.models.consumer.PNPublishResult;
-import com.pubnub.api.models.consumer.PNStatus;
-import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
-import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 
 
 public class Home extends AppCompatActivity {
@@ -69,6 +31,7 @@ public class Home extends AppCompatActivity {
     MyDB db;
     boolean isMymsg=false;
      ChatFragment ch1;
+
 
 
 
@@ -95,7 +58,7 @@ public class Home extends AppCompatActivity {
             pubNubService=((PubNubService.LocalBinder) service).getBinder();
             pubNubService.sendPush();
 
-            pubNubService.subscribeForChannels(new Messages.MessageReceived() {
+            pubNubService.subscribeForChannels(new MessageReceived() {
                 @Override
                 public void onReceive(final String s) {
 
@@ -144,10 +107,15 @@ public class Home extends AppCompatActivity {
                                         }else {
                                             db.insertChat(m);
                                             isMymsg=false;
+
                                         }
+
 
                                     }else
                                         db.insertChat(m);
+
+                                    Intent intent = new Intent(Messages.FILTER_STRING);
+                                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                                 }
 
                                // Toast.makeText(getApplicationContext(),"From="+m.getFrom(),Toast.LENGTH_LONG).show();
@@ -259,6 +227,11 @@ public class Home extends AppCompatActivity {
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
+    }
+
+
+    interface MessageReceived {
+        void onReceive(String s);
     }
 
 

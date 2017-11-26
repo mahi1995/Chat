@@ -68,7 +68,7 @@ public class PubNubService extends Service {
     }
 
 
-    void subscribeForChannels(final Messages.MessageReceived messageReceived){
+    void subscribeForChannels(final Home.MessageReceived messageReceived){
 
         getPubNub().addListener(new SubscribeCallback() {
             @Override
