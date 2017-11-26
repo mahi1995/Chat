@@ -34,6 +34,10 @@ public class ChatFragmentRecyclerAdapter extends RecyclerView.Adapter<ChatFragme
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.latMessage.setText(".............................");
+     //for showing notification
+        holder.txtnotify.setText("*");
+        holder.txtnotify.setVisibility(View.INVISIBLE);
+
         if(values.get(position).length()>15) {
             holder.ContactName.setText("Group");
         }else
@@ -58,6 +62,7 @@ public class ChatFragmentRecyclerAdapter extends RecyclerView.Adapter<ChatFragme
         public TextView ContactName;
         public TextView latMessage;
         public RelativeLayout rl;
+        public TextView txtnotify;
 
         public ViewHolder(View v) {
             super(v);
@@ -65,6 +70,7 @@ public class ChatFragmentRecyclerAdapter extends RecyclerView.Adapter<ChatFragme
             ContactName = (TextView) v.findViewById(R.id.ContactName);
              latMessage= (TextView) v.findViewById(R.id.ContactNumber);
             rl=(RelativeLayout)v.findViewById(R.id.relativeContactSource);
+            txtnotify=(TextView)v.findViewById(R.id.txtMessagenotify);
 
         }
     }

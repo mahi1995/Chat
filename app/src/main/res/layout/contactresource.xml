@@ -7,8 +7,9 @@
     android:background="@drawable/recyclerback">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearContactresource">
 
         <ImageView
             android:id="@+id/icon"
@@ -47,5 +48,17 @@
         </LinearLayout>
 
     </LinearLayout>
-
+    <TextView
+        android:id="@+id/txtMessagenotify"
+        android:layout_toRightOf="@id/linearContactresource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="0dp"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="20dp"
+        android:textColor="#fff"
+        android:textSize="20dp"
+        android:textAlignment="center"
+        android:background="@drawable/notificationback"
+        android:gravity="right|center_vertical"/>
 </RelativeLayout>

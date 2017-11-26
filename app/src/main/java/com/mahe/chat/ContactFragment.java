@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -152,17 +154,6 @@ public class ContactFragment extends Fragment {
 
 
 
-     /*   recyclerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int itemPosition = recyclerView.getChildLayoutPosition(v);
-                String item = l.get(itemPosition);
-                Toast.makeText(getContext(), item, Toast.LENGTH_LONG).show();
-            }
-        });*/
-
-
-
 
         return rootView;
 
@@ -200,7 +191,7 @@ public class ContactFragment extends Fragment {
                 public void run() {
                     ContentResolver cr =getContext().getContentResolver();
                     Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
-                            null, null, null);
+                            null, null,ContactsContract.Contacts.DISPLAY_NAME);
                     if (cur.getCount() > 0) {
                         while (cur.moveToNext()) {
                             String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
@@ -233,7 +224,7 @@ public class ContactFragment extends Fragment {
             Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
             mContactList = null;
         }
-        java.util.Collections.sort(mContactList);
+       // java.util.Collections.sort(mContactList);
         return mContactList;
 
     }
@@ -261,4 +252,6 @@ public class ContactFragment extends Fragment {
         super.onDestroy();
         getContext().unbindService(serviceConnection);
     }
+
+
 }

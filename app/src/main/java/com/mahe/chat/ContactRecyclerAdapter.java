@@ -46,6 +46,7 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
         public TextView ContactName;
         public TextView ContactNumber;
         public RelativeLayout rl;
+        public TextView txtNoti;
 
         public ViewHolder(View v) {
             super(v);
@@ -53,6 +54,7 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
             ContactName = (TextView) v.findViewById(R.id.ContactName);
             ContactNumber = (TextView) v.findViewById(R.id.ContactNumber);
             rl=(RelativeLayout)v.findViewById(R.id.relativeContactSource);
+            txtNoti=(TextView)v.findViewById(R.id.txtMessagenotify);
 
         }
     }
@@ -99,11 +101,12 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final String []name = values.get(position).split(",");
-        boolean isGroup=false;
+
         holder.rl.setSelected(selectedItems.get(position, false));
 
         holder.ContactName.setText(name[0]);
         holder.ContactNumber.setText(name[1]);
+        holder.txtNoti.setVisibility(View.INVISIBLE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             holder.rl.setBackground(ContextCompat.getDrawable(ctx, R.drawable.recyclerback));
