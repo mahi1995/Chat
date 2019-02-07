@@ -4,4 +4,4 @@
 -App allows users to create groups and communicate over the network.
 
 
-app is just a prototype hence no coding standards are maintained.
+app is just a prototype hence no coding standards are followed.
